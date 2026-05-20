@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Threat Command Center</title>
+  <meta name="description"
+    content="Centralized Threat Intelligence Platform — OSINT Radar, SBOM Scanner, Stack Tracker, Threat Map & Auto-Scheduler." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <!-- Leaflet.js for the world map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg-gray-950 text-gray-100 min-h-screen font-inter">
+
+  <!-- ── TOP NAV ── -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-cyan-900/40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 2" />
+            <circle cx="16" cy="16" r="8" stroke="#0891b2" stroke-width="1" />
+            <circle cx="16" cy="16" r="3" fill="#06b6d4" />
+            <line x1="16" y1="2" x2="16" y2="8" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="30" y1="16" x2="24" y2="16" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="16" y1="30" x2="16" y2="24" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="2" y1="16" x2="8" y2="16" stroke="#06b6d4" stroke-width="1.5" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-cyan-400 font-bold text-lg tracking-wider">THREAT</span>
+          <span class="text-white font-light text-lg ml-1">COMMAND CENTER</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Home link -->
+        <a href="/"
+          style="display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;color:#4b5563;text-decoration:none;transition:color .2s;letter-spacing:.04em"
+          onmouseover="this.style.color='#06b6d4'" onmouseout="this.style.color='#4b5563'">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Home
+        </a>
+        <!-- Scheduler Status Badge -->
+        <div id="scheduler-badge"
+          class="hidden items-center gap-1.5 bg-emerald-950/60 border border-emerald-700/40 rounded-full px-3 py-1">
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+          <span class="text-xs text-emerald-400 font-mono">SCHEDULER ON</span>
+        </div>
+        <div id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></div>
+        <span id="status-text" class="text-xs text-gray-400 font-mono">SYSTEM ONLINE</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="fixed left-0 top-0 bottom-0 w-20 z-40 glass-sidebar flex flex-col items-center pt-20 pb-6 gap-2">
+    <button class="nav-tab active" id="tab-radar" onclick="showModule('radar')" title="Global Radar">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke-width="1.5" />
+        <circle cx="12" cy="12" r="5" stroke-width="1.5" />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        <line x1="12" y1="2" x2="12" y2="5" stroke-width="1.5" />
+        <line x1="22" y1="12" x2="19" y2="12" stroke-width="1.5" />
+      </svg>
+      <span class="tab-label">Radar</span>
+    </button>
+    <button class="nav-tab" id="tab-scanner" onclick="showModule('scanner')" title="Code Scanner">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+      <span class="tab-label">Scanner</span>
+    </button>
+    <button class="nav-tab" id="tab-tracker" onclick="showModule('tracker')" title="Stack Tracker">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      <span class="tab-label">Tracker</span>
+    </button>
+    <!-- NEW: Threat Map tab -->
+    <button class="nav-tab" id="tab-map" onclick="showModule('map')" title="Threat Map">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="tab-label">Map</span>
+    </button>
+    <!-- NEW: Scheduler tab -->
+    <button class="nav-tab" id="tab-scheduler" onclick="showModule('scheduler')" title="Auto Scheduler">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="tab-label">Schedule</span>
+    </button>
+    <!-- NEW: Dark Web tab -->
+    <button class="nav-tab" id="tab-darkweb" onclick="showModule('darkweb')" title="Dark Web Monitor">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+      </svg>
+      <span class="tab-label">Dark Web</span>
+    </button>
+    <!-- NEW: Supply Chain tab -->
+    <button class="nav-tab" id="tab-supplychain" onclick="showModule('supplychain')" title="Supply Chain">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+      <span class="tab-label">Supply</span>
+    </button>
+    <!-- NEW: Attack Path tab -->
+    <button class="nav-tab" id="tab-attackpath" onclick="showModule('attackpath')" title="Attack Path">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 9m0 4l-6-4" />
+      </svg>
+      <span class="tab-label">Attack</span>
+    </button>
+    <!-- NEW: NIS2 tab -->
+    <button class="nav-tab" id="tab-compliance" onclick="showModule('compliance')" title="NIS2 Compliance">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      <span class="tab-label">NIS2</span>
+    </button>
+  </aside>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="ml-20 pt-16 min-h-screen">
+
+    <!-- ═══ MODULE: RADAR ═══ -->
+    <section id="module-radar" class="module-section p-8 max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-black text-white flex items-center gap-3">
+            <span
+              style="background:linear-gradient(135deg,#06b6d4,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">◉</span>
+            Global Radar
+            <span class="badge-live" style="font-size:.55rem">LIVE</span>
+          </h1>
+          <p class="text-gray-500 text-sm mt-2">OSINT aggregation from top cybersecurity sources · CVE extraction via
+            Regex</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-radar-refresh" onclick="radarRefresh()" class="cyber-btn">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh Feeds
+          </button>
+          <button onclick="radarToggleCVEOnly()" id="btn-cve-only" class="cyber-btn-outline">CVEs Only</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="radar-stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total Items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-amber-400" id="stat-cve-items">—</div>
+          <div class="stat-label">CVE Mentions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-emerald-400" id="stat-sources">—</div>
+          <div class="stat-label">Active Sources</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-rose-400" id="stat-top-cve">—</div>
+          <div class="stat-label">Top CVE</div>
+        </div>
+      </div>
+
+      <div class="ticker-bar mb-6" id="cve-ticker">
+        <span class="ticker-label">🔥 TRENDING CVEs:</span>
+        <div class="ticker-track" id="ticker-content"><span class="text-gray-500 text-xs">Loading threat
+            intelligence...</span></div>
+      </div>
+
+      <div class="flex gap-3 mb-5">
+        <input type="text" id="radar-search" placeholder="Filter threats..." class="cyber-input flex-1"
+          oninput="radarFilter()" />
+        <select id="radar-source-filter" class="cyber-select" onchange="radarFilter()">
+          <option value="">All Sources</option>
+        </select>
+      </div>
+
+      <div id="radar-feed" class="space-y-3">
+        <div class="loading-state">
+          <div class="spinner"></div><span>Fetching threat intelligence...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: SCANNER (SBOM) ═══ -->
+    <section id="module-scanner" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+          <span class="text-violet-400">⬡</span> SBOM Scanner
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">
+          Multi-ecosystem dependency analysis · Powered by Google OSV &amp; NIST NVD
+        </p>
+      </div>
+
+      <!-- Supported formats -->
+      <div class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
+        <div class="format-chip npm">📦 package.json</div>
+        <div class="format-chip pip">🐍 requirements.txt</div>
+        <div class="format-chip docker">🐋 Dockerfile</div>
+        <div class="format-chip composer">🐘 composer.lock</div>
+        <div class="format-chip cargo">🦀 Cargo.toml</div>
+        <div class="format-chip go">🐹 go.mod</div>
+        <div class="format-chip gem">💎 Gemfile.lock</div>
+        <div class="format-chip maven">☕ pom.xml</div>
+      </div>
+
+      <!-- Upload Zone -->
+      <div id="drop-zone" class="drop-zone mb-8" ondragover="event.preventDefault(); this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+        <input type="file" id="file-input" accept=".json,.txt,.toml,.xml,.lock,.mod" class="hidden"
+          onchange="handleFileSelect(event)" />
+        <div class="flex flex-col items-center gap-4">
+          <div class="upload-icon">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-violet-400">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="text-gray-200 font-medium">Drop any dependency or build file</p>
+            <p class="text-gray-500 text-sm mt-1">Dockerfile · package.json · requirements.txt · Cargo.toml · go.mod ·
+              composer.lock · Gemfile.lock · pom.xml</p>
+          </div>
+          <button onclick="document.getElementById('file-input').click()" class="cyber-btn-violet">Browse Files</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="scanner-results" class="hidden">
+        <div id="scanner-summary" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6"></div>
+        <div id="scanner-vulns" class="space-y-3"></div>
+      </div>
+      <div id="scanner-loading" class="loading-state hidden">
+        <div class="spinner violet"></div>
+        <span>Scanning dependencies via OSV / NVD API...</span>
+      </div>
+
+      <!-- Scan History -->
+      <div class="mt-10">
+        <h2 class="text-sm font-semibold text-violet-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Scan History
+        </h2>
+        <div id="scan-history" class="space-y-2">
+          <p class="text-xs text-gray-600 text-center py-4">No scans yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: TRACKER ═══ -->
+    <section id="module-tracker" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="text-emerald-400">◈</span> Stack Tracker
+          </h1>
+          <p class="text-gray-400 text-sm mt-1">Monitor your tech stack with version-specific CVE alerts · Powered by NIST NVD API</p>
+        </div>
+        <button onclick="trackerScan()" id="btn-tracker-scan" class="cyber-btn-emerald">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Scan Stack
+        </button>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-5">
+          <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4">Your Tech Stack</h2>
+          <div class="flex gap-2 mb-2">
+            <input type="text" id="stack-input" placeholder="Service name (e.g. Nginx, MySQL)"
+              class="cyber-input flex-1 text-sm" onkeydown="if(event.key==='Enter')addStackItem()" />
+            <input type="text" id="stack-version-input" placeholder="Version (e.g. 1.25.3)"
+              class="cyber-input text-sm" style="width:130px;" onkeydown="if(event.key==='Enter')addStackItem()" />
+            <button onclick="addStackItem()" class="cyber-btn-sm-emerald">+</button>
+          </div>
+          <p class="text-xs text-gray-600 mb-4">💡 Adiciona a versão para filtrar CVEs relevantes. Sem versão, todos os CVEs serão mostrados.</p>
+          <div class="mb-4">
+            <p class="text-xs text-gray-500 mb-2">Quick Add:</p>
+            <div class="flex flex-wrap gap-2" id="quick-chips">
+              <button class="quick-chip" onclick="quickAdd('Nginx')">Nginx</button>
+              <button class="quick-chip" onclick="quickAdd('Apache')">Apache</button>
+              <button class="quick-chip" onclick="quickAdd('MySQL')">MySQL</button>
+              <button class="quick-chip" onclick="quickAdd('PostgreSQL')">PostgreSQL</button>
+              <button class="quick-chip" onclick="quickAdd('Redis')">Redis</button>
+              <button class="quick-chip" onclick="quickAdd('OpenSSL')">OpenSSL</button>
+              <button class="quick-chip" onclick="quickAdd('Node.js')">Node.js</button>
+              <button class="quick-chip" onclick="quickAdd('Python')">Python</button>
+              <button class="quick-chip" onclick="quickAdd('WordPress')">WordPress</button>
+              <button class="quick-chip" onclick="quickAdd('Windows')">Windows</button>
+            </div>
+          </div>
+          <div id="stack-list" class="space-y-2 mt-4"></div>
+        </div>
+
+        <div class="md:col-span-2 glass-card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-wider">CVE Alerts</h2>
+            <div class="flex gap-2" id="severity-filters">
+              <button class="sev-filter active" data-sev="" onclick="filterAlerts(this)">All</button>
+              <button class="sev-filter critical" data-sev="CRITICAL" onclick="filterAlerts(this)">Critical</button>
+              <button class="sev-filter high" data-sev="HIGH" onclick="filterAlerts(this)">High</button>
+              <button class="sev-filter medium" data-sev="MEDIUM" onclick="filterAlerts(this)">Medium</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-2 mb-5" id="tracker-stats">
+            <div class="sev-stat critical"><span id="sev-critical">0</span><small>Critical</small></div>
+            <div class="sev-stat high"><span id="sev-high">0</span><small>High</small></div>
+            <div class="sev-stat medium"><span id="sev-medium">0</span><small>Medium</small></div>
+            <div class="sev-stat low"><span id="sev-low">0</span><small>Low</small></div>
+          </div>
+          <div id="tracker-alerts" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+            <div class="empty-state">
+              <p>Add technologies to your stack and click <strong>Scan Stack</strong> to get CVE alerts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: THREAT MAP ═══ -->
+    <section id="module-map" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="text-orange-400">🗺</span> Global Threat Map
+          </h1>
+          <p class="text-gray-400 text-sm mt-1">Real-time geo-located attack events · Derived from OSINT radar
+            intelligence</p>
+        </div>
+        <div class="flex gap-3 items-center">
+          <div class="flex gap-2">
+            <button class="map-sev-filter active" data-sev="" onclick="filterMapSev(this)">All</button>
+            <button class="map-sev-filter critical" data-sev="CRITICAL" onclick="filterMapSev(this)">Critical</button>
+            <button class="map-sev-filter high" data-sev="HIGH" onclick="filterMapSev(this)">High</button>
+            <button class="map-sev-filter medium" data-sev="MEDIUM" onclick="filterMapSev(this)">Medium</button>
+          </div>
+          <button onclick="refreshThreatMap()" class="cyber-btn">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Map Stats Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="stat-card">
+          <div class="stat-value text-orange-400" id="map-stat-total">—</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-rose-500" id="map-stat-critical">—</div>
+          <div class="stat-label">Critical</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-orange-300" id="map-stat-high">—</div>
+          <div class="stat-label">High</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-cyan-400" id="map-stat-countries">—</div>
+          <div class="stat-label">Countries</div>
+        </div>
+      </div>
+
+      <!-- Map + Sidebar -->
+      <div class="grid md:grid-cols-4 gap-6">
+        <!-- Map container -->
+        <div class="md:col-span-3">
+          <div class="glass-card overflow-hidden" style="padding:0">
+            <div id="threat-map" style="height: 520px; background:#0a0f1a;"></div>
+          </div>
+          <!-- Attack Types bar -->
+          <div class="glass-card p-4 mt-4">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Top Attack Types</p>
+            <div id="attack-types-bar" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Top Countries sidebar -->
+        <div class="glass-card p-5">
+          <h3 class="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-4">
+            Top Threat Origins
+          </h3>
+          <div id="top-countries-list" class="space-y-3">
+            <div class="text-xs text-gray-600 text-center py-6">Loading...</div>
+          </div>
+
+          <!-- Live feed of recent events -->
+          <h3 class="text-sm font-semibold text-orange-400 uppercase tracking-wider mt-6 mb-3">
+            Recent Events
+          </h3>
+          <div id="map-live-feed" class="space-y-2 max-h-64 overflow-y-auto">
+            <div class="text-xs text-gray-600 text-center py-4">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: SCHEDULER ═══ -->
+    <section id="module-scheduler" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+          <span class="text-sky-400">⏰</span> Auto Scheduler
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">Automated background jobs · Radar refresh every 6h · NVD scan every 12h
+        </p>
+      </div>
+
+      <!-- Status Card -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- Scheduler Running Status -->
+        <div class="glass-card p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div id="sched-status-dot" class="w-3 h-3 rounded-full bg-gray-600"></div>
+            <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Scheduler Status</h2>
+          </div>
+          <div id="sched-status-text" class="text-2xl font-bold text-gray-500 mb-2">Checking...</div>
+          <p class="text-xs text-gray-600">Background jobs running automatically in the FastAPI process</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card p-6">
+          <h2 class="text-sm font-semibold text-sky-400 uppercase tracking-wider mb-4">Manual Triggers</h2>
+          <div class="space-y-3">
+            <button onclick="triggerJob('radar_refresh')" id="btn-trigger-radar"
+              class="cyber-btn w-full justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Run Radar Refresh Now
+            </button>
+            <button onclick="triggerJob('nvd_stack_scan')" id="btn-trigger-nvd"
+              class="cyber-btn-emerald w-full justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Run NVD Stack Scan Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs Table -->
+      <div class="glass-card p-6 mb-6">
+        <h2 class="text-sm font-semibold text-sky-400 uppercase tracking-wider mb-5">Scheduled Jobs</h2>
+        <div id="jobs-table" class="space-y-4">
+          <div class="text-xs text-gray-600 text-center py-6">Loading jobs...</div>
+        </div>
+      </div>
+
+      <!-- Execution Log -->
+      <div class="glass-card p-6">
+        <h2 class="text-sm font-semibold text-sky-400 uppercase tracking-wider mb-5">Execution Log</h2>
+        <div id="sched-log" class="space-y-3">
+          <div class="text-xs text-gray-600 text-center py-6">No logs yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: DARK WEB MONITOR ═══ -->
+    <section id="module-darkweb" class="module-section hidden p-6 max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-3xl font-black text-white flex items-center gap-3">
+            <span class="dw-icon-pulse">🕸️</span>
+            <span
+              style="background:linear-gradient(135deg,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Dark
+              Web</span>
+            <span class="font-light text-white">Monitor</span>
+          </h1>
+          <p class="text-gray-500 text-sm mt-2">Breach intelligence · Paste sites · CISA KEV · Threat Intel RSS ·
+            Ransomware tracker</p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <button onclick="exportDarkwebCSV()" id="btn-dw-export" class="cyber-btn-outline"
+            style="border-color:rgba(139,92,246,.3);color:#7c3aed">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </button>
+          <button onclick="darkwebScan()" id="btn-darkweb-scan" class="cyber-btn dw-scan-btn">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Scan Dark Web
+          </button>
+        </div>
+      </div>
+
+      <!-- Scanning Animation Overlay -->
+      <div id="dw-scan-overlay" class="hidden dw-scan-overlay mb-6">
+        <div class="dw-scan-ring"></div>
+        <div class="dw-scan-ring" style="animation-delay:-0.8s;width:80px;height:80px;opacity:.6"></div>
+        <div class="dw-scan-ring" style="animation-delay:-1.6s;width:100px;height:100px;opacity:.3"></div>
+        <div class="dw-scan-icon">🕸️</div>
+        <div class="dw-scan-label">Scanning Dark Web Intelligence...</div>
+        <div id="dw-scan-progress" class="dw-scan-progress-text">Connecting to threat feeds</div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+        <div class="dw-stat-card critical">
+          <div class="dw-stat-val" id="dw-stat-critical">0</div>
+          <div class="dw-stat-lbl">Critical</div>
+        </div>
+        <div class="dw-stat-card high">
+          <div class="dw-stat-val" id="dw-stat-high">0</div>
+          <div class="dw-stat-lbl">High</div>
+        </div>
+        <div class="dw-stat-card medium">
+          <div class="dw-stat-val" id="dw-stat-total">0</div>
+          <div class="dw-stat-lbl">Total</div>
+        </div>
+        <div class="dw-stat-card kev">
+          <div class="dw-stat-val" id="dw-stat-kev">0</div>
+          <div class="dw-stat-lbl">KEV Hits</div>
+        </div>
+        <div class="dw-stat-card intel">
+          <div class="dw-stat-val" id="dw-stat-intel">0</div>
+          <div class="dw-stat-lbl">Intel Feeds</div>
+        </div>
+        <div class="dw-stat-card ransomware">
+          <div class="dw-stat-val" id="dw-stat-ransomware">0</div>
+          <div class="dw-stat-lbl">Ransomware</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- LEFT: Assets + Breach Check -->
+        <div class="flex flex-col gap-5">
+
+          <!-- Monitored Assets Card -->
+          <div class="glass-card p-5">
+            <h2 class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#a78bfa">
+              <span class="inline-block w-2 h-2 rounded-full bg-violet-500 mr-2 animate-pulse"></span>
+              Monitored Assets
+            </h2>
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="darkweb-input" placeholder="domain, email, brand..."
+                class="cyber-input flex-1 text-sm" onkeydown="if(event.key==='Enter')addDarkwebTarget()" />
+              <button onclick="addDarkwebTarget()" class="dw-add-btn">+</button>
+            </div>
+            <div class="mb-4">
+              <p class="text-xs text-gray-600 mb-2">Quick Add:</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button class="dw-quick-chip" onclick="quickAddDarkweb('ransomware')">ransomware</button>
+                <button class="dw-quick-chip" onclick="quickAddDarkweb('data breach')">data breach</button>
+                <button class="dw-quick-chip" onclick="quickAddDarkweb('credential dump')">credential dump</button>
+                <button class="dw-quick-chip" onclick="quickAddDarkweb('infostealer')">infostealer</button>
+                <button class="dw-quick-chip" onclick="quickAddDarkweb('phishing')">phishing</button>
+              </div>
+            </div>
+            <div id="darkweb-targets" class="space-y-2"></div>
+          </div>
+
+          <!-- Breach Exposure Check -->
+          <div class="glass-card p-5 dw-breach-card">
+            <h2 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#f43f5e">
+              <span>🔍</span> Breach Exposure Check
+            </h2>
+            <p class="text-xs text-gray-600 mb-3">Check if an email or domain has CISA KEV exposure or known breach
+              signals.</p>
+            <div class="flex gap-2 mb-3">
+              <input type="text" id="breach-check-input" placeholder="email@domain.com or domain.com"
+                class="cyber-input flex-1 text-sm" onkeydown="if(event.key==='Enter')runBreachCheck()" />
+              <button onclick="runBreachCheck()" id="btn-breach-check" class="dw-breach-btn">Check</button>
+            </div>
+            <div id="breach-check-result" class="hidden dw-breach-result"></div>
+          </div>
+
+          <!-- Source Breakdown -->
+          <div class="glass-card p-5">
+            <h2 class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#a78bfa">Signal Sources</h2>
+            <div id="dw-source-breakdown" class="space-y-3">
+              <div class="text-xs text-gray-600 text-center py-3">Run a scan to see source breakdown</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Findings Panel -->
+        <div class="md:col-span-2 glass-card p-5">
+
+          <!-- Findings Header + Filters -->
+          <div class="flex flex-col gap-3 mb-5">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xs font-bold uppercase tracking-widest" style="color:#a78bfa">Intelligence Findings</h2>
+              <div class="flex items-center gap-2">
+                <span id="dw-last-scan" class="text-xs text-gray-600 font-mono"></span>
+              </div>
+            </div>
+            <!-- Risk filters -->
+            <div class="flex gap-2 flex-wrap">
+              <button class="dw-risk-filter active" data-risk="" onclick="filterDarkwebRisk(this)">All</button>
+              <button class="dw-risk-filter critical" data-risk="CRITICAL"
+                onclick="filterDarkwebRisk(this)">Critical</button>
+              <button class="dw-risk-filter high" data-risk="HIGH" onclick="filterDarkwebRisk(this)">High</button>
+              <button class="dw-risk-filter medium" data-risk="MEDIUM" onclick="filterDarkwebRisk(this)">Medium</button>
+            </div>
+            <!-- Type filters -->
+            <div class="flex gap-2 flex-wrap">
+              <button class="dw-type-filter active" data-type="" onclick="filterDarkwebType(this)">All Types</button>
+              <button class="dw-type-filter" data-type="kev" onclick="filterDarkwebType(this)">🔴 KEV</button>
+              <button class="dw-type-filter" data-type="intel" onclick="filterDarkwebType(this)">📡 Intel Feeds</button>
+              <button class="dw-type-filter" data-type="paste" onclick="filterDarkwebType(this)">📋 Paste Sites</button>
+            </div>
+            <!-- Search within findings -->
+            <input type="text" id="dw-findings-search" placeholder="Search findings..." class="cyber-input text-sm"
+              oninput="filterDarkwebFindings()" />
+          </div>
+
+          <div id="darkweb-findings" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+            <div class="dw-empty">
+              <div class="dw-empty-icon">🕸️</div>
+              <p>Add keywords and click <strong>Scan Dark Web</strong></p>
+              <p class="text-xs mt-1">Monitors paste sites, CISA KEV &amp; 6 threat intelligence feeds</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: SUPPLY CHAIN ═══ -->
+    <section id="module-supplychain" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold text-white flex items-center gap-2">🔗 Supply Chain Detector</h1>
+        <p class="text-gray-400 text-sm mt-1">Detect typosquatting, dependency confusion &amp; suspicious package
+          metadata</p>
+      </div>
+      <div id="sc-drop-zone" class="drop-zone mb-8"
+        style="border-color:rgba(251,146,60,.35);background:rgba(251,146,60,.04)"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')" ondrop="handleSCDrop(event)">
+        <input type="file" id="sc-file-input" accept=".json,.txt" class="hidden" onchange="handleSCFile(event)" />
+        <div class="flex flex-col items-center gap-4">
+          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#f97316">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <div class="text-center">
+            <p class="text-gray-200 font-medium">Drop package.json or requirements.txt</p>
+            <p class="text-gray-500 text-sm mt-1">Analyzes every package for typosquatting &amp; supply chain risks</p>
+          </div>
+          <button onclick="document.getElementById('sc-file-input').click()" class="cyber-btn"
+            style="border-color:rgba(251,146,60,.4);color:#fb923c;background:rgba(251,146,60,.1)">Browse Files</button>
+        </div>
+      </div>
+      <div id="sc-loading" class="loading-state hidden">
+        <div class="spinner" style="border-top-color:#f97316"></div><span>Analyzing supply chain...</span>
+      </div>
+      <div id="sc-results" class="hidden">
+        <div id="sc-summary" class="grid grid-cols-3 gap-4 mb-6"></div>
+        <div id="sc-findings" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: ATTACK PATH ═══ -->
+    <section id="module-attackpath" class="module-section hidden p-6 max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-2xl font-bold text-white flex items-center gap-2">🎯 Attack Path Visualizer</h1>
+          <p class="text-gray-400 text-sm mt-1">MITRE ATT&amp;CK kill chain mapped to your tech stack · Add stack in
+            <strong>Tracker</strong> first</p>
+        </div>
+        <button onclick="loadAttackPath()" class="cyber-btn"
+          style="border-color:rgba(244,63,94,.4);color:#f43f5e;background:rgba(244,63,94,.1)">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Generate Attack Path
+        </button>
+      </div>
+      <div id="ap-loading" class="loading-state hidden">
+        <div class="spinner" style="border-top-color:#f43f5e"></div><span>Mapping MITRE ATT&amp;CK techniques...</span>
+      </div>
+      <div id="ap-results" class="hidden">
+        <div id="ap-summary" class="grid grid-cols-4 gap-4 mb-8"></div>
+        <h2 class="text-sm font-semibold uppercase tracking-wider mb-5" style="color:#f43f5e">Kill Chain Stages</h2>
+        <div id="ap-killchain" class="space-y-4"></div>
+        <h2 class="text-sm font-semibold uppercase tracking-wider mt-8 mb-4" style="color:#f43f5e">Highest Likelihood
+          Techniques</h2>
+        <div id="ap-high" class="grid md:grid-cols-2 gap-3"></div>
+      </div>
+      <div id="ap-empty" class="empty-state">
+        <p>Click <strong>Generate Attack Path</strong> to map your stack to MITRE ATT&amp;CK.</p>
+        <p class="mt-2 text-xs">Requires technologies in the Stack Tracker.</p>
+      </div>
+    </section>
+
+    <!-- ═══ MODULE: NIS2 COMPLIANCE ═══ -->
+    <section id="module-compliance" class="module-section hidden p-6 max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+            <span class="nis2-header-icon">🛡️</span>
+            NIS2 Compliance Analyzer
+            <span class="badge-nis2-eu">EU DIRECTIVE</span>
+          </h1>
+          <p class="text-gray-400 text-sm mt-2">EU NIS2 Directive gap analysis · Articles 21 &amp; 23 · Weighted scoring
+            against your tech stack &amp; CVE posture</p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button onclick="runNIS2()" id="btn-run-nis2" class="cyber-btn">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Run Analysis
+          </button>
+          <button onclick="exportNIS2Report()" id="btn-export-nis2" class="cyber-btn-outline" title="Export PDF Report">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Configuration Panel -->
+      <div class="grid md:grid-cols-3 gap-6 mb-6">
+
+        <!-- Sector Classification -->
+        <div class="glass-card p-5">
+          <h2 class="nis2-section-label" style="color:#06b6d4">🏢 Entity Classification</h2>
+          <p class="text-xs text-gray-500 mb-4">Determines your NIS2 obligations and penalties</p>
+          <div class="space-y-2">
+            <label class="nis2-radio-label">
+              <input type="radio" name="nis2-entity" id="entity-essential" value="essential" checked
+                onchange="runNIS2()" class="nis2-radio" />
+              <div class="nis2-radio-box">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="nis2-entity-dot essential"></span>
+                  <span class="font-semibold text-white text-sm">Essential Entity</span>
+                </div>
+                <p class="text-xs text-gray-500">Energy, Transport, Health, Banking, Water, Digital Infrastructure</p>
+                <p class="text-xs text-rose-400 mt-1">Fines up to €10M or 2% global turnover</p>
+              </div>
+            </label>
+            <label class="nis2-radio-label">
+              <input type="radio" name="nis2-entity" id="entity-important" value="important" onchange="runNIS2()"
+                class="nis2-radio" />
+              <div class="nis2-radio-box">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="nis2-entity-dot important"></span>
+                  <span class="font-semibold text-white text-sm">Important Entity</span>
+                </div>
+                <p class="text-xs text-gray-500">Postal, Waste Mgmt, Chemicals, Food, Manufacturing, Research</p>
+                <p class="text-xs text-amber-400 mt-1">Fines up to €7M or 1.4% global turnover</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Security Controls (12 controls) -->
+        <div class="glass-card p-5 md:col-span-2">
+          <h2 class="nis2-section-label" style="color:#06b6d4">🔒 Security Controls Implemented</h2>
+          <p class="text-xs text-gray-500 mb-4">Check all controls currently active in your organization</p>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-mfa" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🔐</span> Multi-Factor Authentication</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-backup" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">💾</span> Backups &amp; Disaster Recovery</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-ir" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🚨</span> Incident Response Plan</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-encrypt" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🔑</span> Encryption &amp; TLS Policy</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-siem" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">📊</span> SIEM / Log Monitoring</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-pentest" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🎯</span> Penetration Testing</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-training" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">📚</span> Security Awareness Training</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-acl" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🛂</span> Access Control &amp; IAM</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-vuln" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">🔍</span> Vulnerability Scanning</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-sbom" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">📦</span> SBOM &amp; Supply Chain Checks</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-risk" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">📋</span> Risk Assessment Policy</div>
+            </label>
+            <label class="nis2-toggle">
+              <input type="checkbox" id="nis2-csirt" onchange="runNIS2()" />
+              <div class="toggle-box"><span class="toggle-icon">📡</span> CSIRT / Authority Contact</div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <!-- Empty / CTA state (shown before first run) -->
+      <div id="nis2-empty" class="nis2-cta-state">
+        <div class="nis2-cta-icon">🛡️</div>
+        <h3 class="nis2-cta-title">Ready to Analyze</h3>
+        <p class="nis2-cta-desc">Select your entity type, check the security controls you have in place, then click
+          <strong>Run Analysis</strong> to generate your NIS2 compliance report.</p>
+        <button onclick="runNIS2()" class="cyber-btn" style="margin-top:8px">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Run Analysis Now
+        </button>
+      </div>
+
+      <div id="nis2-loading" class="loading-state hidden">
+        <div class="spinner"></div><span>Analyzing NIS2 compliance posture...</span>
+      </div>
+
+      <!-- Results -->
+      <div id="nis2-results" class="hidden">
+
+        <!-- Score Hero Row -->
+        <div class="nis2-score-hero mb-6">
+          <!-- Score Ring -->
+          <div class="nis2-ring-wrap">
+            <svg class="nis2-ring-svg" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10" />
+              <circle id="nis2-ring-circle" cx="60" cy="60" r="52" fill="none" stroke="#06b6d4" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"
+                style="transition:stroke-dashoffset 1.2s ease, stroke 0.5s" />
+            </svg>
+            <div class="nis2-ring-inner">
+              <div id="nis2-score-display" class="nis2-score-big">0%</div>
+              <div id="nis2-status-label" class="nis2-score-sub">—</div>
+            </div>
+          </div>
+
+          <!-- Stats grid -->
+          <div class="nis2-hero-stats">
+            <div class="nis2-hero-stat compliant">
+              <div class="nis2-hero-stat-val" id="nis2-stat-compliant">—</div>
+              <div class="nis2-hero-stat-lbl">✅ Compliant</div>
+            </div>
+            <div class="nis2-hero-stat partial">
+              <div class="nis2-hero-stat-val" id="nis2-stat-partial">—</div>
+              <div class="nis2-hero-stat-lbl">⚠️ Partial</div>
+            </div>
+            <div class="nis2-hero-stat gap">
+              <div class="nis2-hero-stat-val" id="nis2-stat-gap">—</div>
+              <div class="nis2-hero-stat-lbl">❌ Gaps</div>
+            </div>
+            <div class="nis2-hero-stat info">
+              <div class="nis2-hero-stat-val" id="nis2-stat-cves">—</div>
+              <div class="nis2-hero-stat-lbl">🐛 CVEs</div>
+            </div>
+          </div>
+
+          <!-- Overall progress bar -->
+          <div class="nis2-hero-bar-wrap">
+            <div class="flex justify-between text-xs text-gray-500 mb-2">
+              <span>Compliance Score</span>
+              <span id="nis2-entity-label" class="text-cyan-500 font-semibold">—</span>
+            </div>
+            <div class="nis2-hero-bar-track">
+              <div id="nis2-hero-bar-fill" class="nis2-hero-bar-fill" style="width:0%"></div>
+            </div>
+            <div class="flex justify-between text-xs mt-2">
+              <span class="text-rose-400">0% — Critical</span>
+              <span class="text-amber-400">40% — Partial</span>
+              <span class="text-emerald-400">70%+ — Compliant</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Critical Gaps Alert -->
+        <div id="nis2-top-gaps" class="nis2-alert-banner mb-6 hidden">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="text-sm font-bold text-rose-400 uppercase tracking-wider">Critical Compliance Gaps
+              Detected</span>
+          </div>
+          <div id="nis2-top-gaps-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Two-column layout: Articles + Remediation -->
+        <div class="grid md:grid-cols-3 gap-6">
+
+          <!-- Article Breakdown (2/3 width) -->
+          <div class="md:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="nis2-section-label" style="color:#06b6d4">📄 Article Breakdown</h2>
+              <div class="flex gap-2" id="nis2-filter-bar">
+                <button class="nis2-art-filter active" data-filter="all" onclick="filterNIS2Articles(this)">All</button>
+                <button class="nis2-art-filter" data-filter="GAP" onclick="filterNIS2Articles(this)">Gaps</button>
+                <button class="nis2-art-filter" data-filter="PARTIAL"
+                  onclick="filterNIS2Articles(this)">Partial</button>
+                <button class="nis2-art-filter" data-filter="COMPLIANT"
+                  onclick="filterNIS2Articles(this)">Compliant</button>
+              </div>
+            </div>
+            <div id="nis2-articles" class="space-y-3"></div>
+          </div>
+
+          <!-- Remediation Roadmap (1/3 width) -->
+          <div>
+            <h2 class="nis2-section-label mb-4" style="color:#06b6d4">🗺️ Remediation Roadmap</h2>
+            <div id="nis2-roadmap" class="space-y-3"></div>
+
+            <!-- Deadline Info -->
+            <div class="nis2-deadline-card mt-4">
+              <div class="flex items-center gap-2 mb-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#f59e0b">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Key Deadlines</span>
+              </div>
+              <div class="space-y-2 text-xs text-gray-400">
+                <div class="flex justify-between"><span>⚡ Early warning</span><span class="text-white font-semibold">24
+                    hours</span></div>
+                <div class="flex justify-between"><span>📋 Full notification</span><span
+                    class="text-white font-semibold">72 hours</span></div>
+                <div class="flex justify-between"><span>📝 Incident report</span><span
+                    class="text-white font-semibold">1 month</span></div>
+                <div class="flex justify-between"><span>🇪🇺 Transposition</span><span
+                    class="text-white font-semibold">Oct 2024</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

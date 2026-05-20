@@ -1,0 +1,38 @@
+# --- Ambientes Virtuais ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Base de Dados Local ---
+backend/threat_center.db
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Configurações Locais e Segredos ---
+backend/.env
+.env
+.env.local
+
+# --- Cache do Python e Compilação ---
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# --- Logs e Relatórios ---
+*.log
+backend/logs/
+frontend/exports/
+*.csv
+
+# --- Ficheiros de Sistema e IDEs ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

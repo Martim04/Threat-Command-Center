@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Threat Command Center — Cybersecurity Intelligence Platform</title>
+  <meta name="description"
+    content="Threat Command Center — Real-time OSINT radar, SBOM scanner, CVE tracker, Dark Web monitor, Attack Path visualizer, and NIS2 compliance analyzer." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="home.css" />
+</head>
+
+<body>
+
+  <!-- ── CANVAS BG ── -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ── NAV ── -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <div class="top-nav-logo">
+        <div class="logo-radar">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle class="rotate-ring" cx="16" cy="16" r="14" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 2" />
+            <circle cx="16" cy="16" r="8" stroke="#0891b2" stroke-width="1" />
+            <circle cx="16" cy="16" r="3" fill="#06b6d4" />
+            <line x1="16" y1="2" x2="16" y2="8" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="30" y1="16" x2="24" y2="16" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="16" y1="30" x2="16" y2="24" stroke="#06b6d4" stroke-width="1.5" />
+            <line x1="2" y1="16" x2="8" y2="16" stroke="#06b6d4" stroke-width="1.5" />
+          </svg>
+        </div>
+        <div>
+          <span class="logo-threat">THREAT</span>
+          <span class="logo-cc">COMMAND CENTER</span>
+        </div>
+      </div>
+      <div class="top-nav-right">
+        <div class="status-badge" id="status-badge">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Connecting...</span>
+        </div>
+        <a href="dashboard.html" class="nav-cta-btn" id="nav-cta-btn">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Launch App
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-inner">
+
+      <!-- Left -->
+      <div class="hero-left">
+        <div class="hero-eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>CYBERSECURITY INTELLIGENCE PLATFORM</span>
+        </div>
+        <h1 class="hero-title">
+          Your Threat<br>
+          <span class="gradient-text">Command Center</span>
+        </h1>
+        <p class="hero-subtitle">
+          Real-time OSINT aggregation, AI-powered vulnerability scanning, dark web monitoring, and NIS2 compliance
+          analysis — all in one unified interface.
+        </p>
+
+        <!-- Live stat pills -->
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value cyan" id="hs-total">—</span>
+            <span class="hero-stat-label">Threats Indexed</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value amber" id="hs-cves">—</span>
+            <span class="hero-stat-label">CVEs Tracked</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value emerald" id="hs-sources">—</span>
+            <span class="hero-stat-label">Active Feeds</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="dashboard.html" class="btn-primary" id="hero-enter-btn">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Enter Command Center
+          </a>
+          <a href="#modules" class="btn-ghost">
+            Explore Modules
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Radar -->
+      <div class="hero-visual">
+        <div class="radar-container">
+          <div class="radar-ring r1"></div>
+          <div class="radar-ring r2"></div>
+          <div class="radar-ring r3"></div>
+          <div class="radar-ring r4"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-center">
+            <div class="radar-center-core"></div>
+          </div>
+          <!-- Blips -->
+          <div class="blip b1"></div>
+          <div class="blip b2"></div>
+          <div class="blip b3"></div>
+          <div class="blip b4"></div>
+          <div class="blip b5"></div>
+          <!-- CVE tags -->
+          <div class="cve-tag tag1">CVE-2024-3400</div>
+          <div class="cve-tag tag2">CVE-2025-0282</div>
+          <div class="cve-tag tag3">CVE-2024-8190</div>
+          <!-- Cross -->
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="hero-ticker">
+      <span class="ticker-label">🔴 LIVE THREATS:</span>
+      <div class="ticker-wrap">
+        <div class="ticker-content" id="ticker-live">
+          <span class="ticker-item cve">CVE-2024-3400</span>
+          <span class="ticker-item">PAN-OS Zero-Day Exploited in the Wild</span>
+          <span class="ticker-item cve">CVE-2025-0282</span>
+          <span class="ticker-item">Ivanti VPN Critical RCE — Patch Now</span>
+          <span class="ticker-item cve">CVE-2024-8190</span>
+          <span class="ticker-item">Cisco IOS XE Auth Bypass</span>
+          <span class="ticker-item cve">CVE-2024-21887</span>
+          <span class="ticker-item">Juniper SRX Remote Code Execution</span>
+          <span class="ticker-item cve">CVE-2024-3400</span>
+          <span class="ticker-item">PAN-OS Zero-Day Exploited in the Wild</span>
+          <span class="ticker-item cve">CVE-2025-0282</span>
+          <span class="ticker-item">Ivanti VPN Critical RCE — Patch Now</span>
+          <span class="ticker-item cve">CVE-2024-8190</span>
+          <span class="ticker-item">Cisco IOS XE Auth Bypass</span>
+          <span class="ticker-item cve">CVE-2024-21887</span>
+          <span class="ticker-item">Juniper SRX Remote Code Execution</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MODULES GRID ── -->
+  <section class="features" id="modules">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">CAPABILITIES</div>
+        <h2 class="section-title">9 Modules. One Mission.</h2>
+        <p class="section-sub">Comprehensive threat intelligence tools engineered for security professionals.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <!-- Radar -->
+        <a href="dashboard.html" class="feature-card card-cyan" id="mod-radar">
+          <div class="card-glow cyan-glow"></div>
+          <div class="card-icon cyan-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="1.5" />
+              <circle cx="12" cy="12" r="5" stroke-width="1.5" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              <line x1="12" y1="2" x2="12" y2="5" stroke-width="1.5" />
+              <line x1="22" y1="12" x2="19" y2="12" stroke-width="1.5" />
+            </svg>
+          </div>
+          <div class="card-num">01</div>
+          <h3 class="card-title">Global OSINT Radar</h3>
+          <p class="card-desc">Aggregates real-time cybersecurity news from 8+ RSS feeds with automatic CVE extraction
+            and frequency ranking.</p>
+          <div class="card-footer">
+            <div class="card-badge cyan-badge">LIVE</div>
+            <div class="card-arrow cyan-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Scanner -->
+        <a href="dashboard.html#scanner" class="feature-card card-violet" id="mod-scanner">
+          <div class="card-glow violet-glow"></div>
+          <div class="card-icon violet-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <div class="card-num">02</div>
+          <h3 class="card-title">SBOM Scanner</h3>
+          <p class="card-desc">Multi-ecosystem dependency analysis: Dockerfile, npm, PyPI, Cargo, Go, Maven, Composer —
+            powered by Google OSV & NVD.</p>
+          <div class="card-footer">
+            <div class="card-badge violet-badge">OSV API</div>
+            <div class="card-arrow violet-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Tracker -->
+        <a href="dashboard.html#tracker" class="feature-card card-emerald" id="mod-tracker">
+          <div class="card-glow emerald-glow"></div>
+          <div class="card-icon emerald-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div class="card-num">03</div>
+          <h3 class="card-title">Stack CVE Tracker</h3>
+          <p class="card-desc">Define your tech stack and receive automated CVE alerts from NIST NVD — cross-referenced
+            with live OSINT radar.</p>
+          <div class="card-footer">
+            <div class="card-badge emerald-badge">NVD API</div>
+            <div class="card-arrow emerald-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Threat Map -->
+        <a href="dashboard.html#map" class="feature-card card-orange" id="mod-map">
+          <div class="card-glow orange-glow"></div>
+          <div class="card-icon orange-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="card-num">04</div>
+          <h3 class="card-title">Global Threat Map</h3>
+          <p class="card-desc">Geo-located attack events derived from OSINT intelligence. Interactive world map with
+            real-time threat origins and attack types.</p>
+          <div class="card-footer">
+            <div class="card-badge orange-badge">GEO-INTEL</div>
+            <div class="card-arrow orange-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Dark Web -->
+        <a href="dashboard.html#darkweb" class="feature-card card-purple" id="mod-darkweb">
+          <div class="card-glow purple-glow"></div>
+          <div class="card-icon purple-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          </div>
+          <div class="card-num">05</div>
+          <h3 class="card-title">Dark Web Monitor</h3>
+          <p class="card-desc">Breach intelligence, paste sites, CISA KEV, threat intel RSS, and ransomware tracker with
+            exposure check for emails and domains.</p>
+          <div class="card-footer">
+            <div class="card-badge purple-badge">BREACH INTEL</div>
+            <div class="card-arrow purple-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Supply Chain -->
+        <a href="dashboard.html#supplychain" class="feature-card card-amber" id="mod-supply">
+          <div class="card-glow amber-glow"></div>
+          <div class="card-icon amber-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          </div>
+          <div class="card-num">06</div>
+          <h3 class="card-title">Supply Chain Detector</h3>
+          <p class="card-desc">Detect typosquatting, dependency confusion, and suspicious package metadata. Upload npm or
+            PyPI manifests for instant analysis.</p>
+          <div class="card-footer">
+            <div class="card-badge amber-badge">TYPOSQUAT</div>
+            <div class="card-arrow amber-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Attack Path -->
+        <a href="dashboard.html#attackpath" class="feature-card card-rose" id="mod-attack">
+          <div class="card-glow rose-glow"></div>
+          <div class="card-icon rose-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 9m0 4l-6-4" />
+            </svg>
+          </div>
+          <div class="card-num">07</div>
+          <h3 class="card-title">Attack Path Visualizer</h3>
+          <p class="card-desc">MITRE ATT&CK kill chain mapped automatically to your tech stack. Identify attack vectors
+            before adversaries exploit them.</p>
+          <div class="card-footer">
+            <div class="card-badge rose-badge">MITRE ATT&CK</div>
+            <div class="card-arrow rose-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- NIS2 -->
+        <a href="dashboard.html#nis2" class="feature-card card-sky" id="mod-nis2">
+          <div class="card-glow sky-glow"></div>
+          <div class="card-icon sky-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div class="card-num">08</div>
+          <h3 class="card-title">NIS2 Compliance Analyzer</h3>
+          <p class="card-desc">EU NIS2 Directive gap analysis — Articles 21 & 23. Weighted scoring against 12 security
+            controls, your CVE posture, and tech stack.</p>
+          <div class="card-footer">
+            <div class="card-badge sky-badge">EU DIRECTIVE</div>
+            <div class="card-arrow sky-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Scheduler -->
+        <a href="dashboard.html#scheduler" class="feature-card card-teal" id="mod-sched">
+          <div class="card-glow teal-glow"></div>
+          <div class="card-icon teal-icon">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="card-num">09</div>
+          <h3 class="card-title">Auto Scheduler</h3>
+          <p class="card-desc">Automated background jobs — radar refresh every 6h, NVD stack scan every 12h. Manual
+            triggers with execution logging.</p>
+          <div class="card-footer">
+            <div class="card-badge teal-badge">AUTOMATED</div>
+            <div class="card-arrow teal-arrow">→</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LIVE FEED TERMINAL ── -->
+  <section class="intel-preview">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">LIVE INTELLIGENCE</div>
+        <h2 class="section-title">Threat Feed Preview</h2>
+        <p class="section-sub">Latest OSINT entries from the radar — updating in real time.</p>
+      </div>
+
+      <div class="preview-terminal">
+        <div class="terminal-bar">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">threat_feed.live — OSINT Radar</span>
+          <div class="tb-live-pill">
+            <span class="tb-live-dot"></span>
+            LIVE
+          </div>
+        </div>
+        <div class="terminal-body" id="feed-preview">
+          <div class="terminal-loading">
+            <div class="t-spinner"></div>
+            <span class="t-mono">Connecting to threat intelligence feeds...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-cta">
+        <a href="dashboard.html" class="btn-primary large" id="preview-cta-btn">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Open Full Dashboard
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS BANNER ── -->
+  <section class="how-it-works">
+    <div class="section-inner">
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number cyan" id="sb-threats">—</div>
+          <div class="step-title">Threats Indexed</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-number amber" id="sb-cves">—</div>
+          <div class="step-title">CVEs Tracked</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-number emerald" id="sb-feeds">—</div>
+          <div class="step-title">Intel Sources</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-number violet" id="sb-modules">9</div>
+          <div class="step-title">Security Modules</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <div class="section-inner">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-threat">THREAT</span>
+          <span class="logo-cc">COMMAND CENTER</span>
+        </div>
+        <div class="footer-tags">
+          <span class="f-tag">FastAPI</span>
+          <span class="f-tag">SQLite</span>
+          <span class="f-tag">OSV API</span>
+          <span class="f-tag">NVD API</span>
+          <span class="f-tag">OSINT</span>
+          <span class="f-tag">MITRE ATT&CK</span>
+          <span class="f-tag">NIS2</span>
+        </div>
+        <p class="footer-note">Built for cybersecurity professionals · <span id="footer-year"></span></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="home.js"></script>
+</body>
+
+</html>
