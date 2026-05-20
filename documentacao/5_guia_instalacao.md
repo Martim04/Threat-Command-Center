@@ -89,7 +89,37 @@ http://localhost:3000
 
 ---
 
-## 4. Resolução de Problemas (Troubleshooting) 🛠️
+## 4. Execução Alternativa com Docker (Recomendada) 🐳
+
+Para simplificar a inicialização e evitar a necessidade de configurar ambientes Python locais e múltiplos terminais, o projeto dispõe de suporte completo a **Docker** e **Docker Compose**.
+
+### Passo 4.1: Pré-requisitos do Docker
+Garante que tens o **Docker** e o **Docker Compose** instalados na tua máquina:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (disponível para Windows, macOS e Linux).
+
+### Passo 4.2: Iniciar Toda a Aplicação
+Na raiz do projeto (onde se localiza o ficheiro `docker-compose.yml`), executa o seguinte comando no terminal:
+```bash
+docker-compose up --build
+```
+Este comando irá:
+1. Compilar a imagem do backend FastAPI baseado em `python:3.10-slim`.
+2. Fazer o download do servidor web lightweight `nginx:alpine` para servir o frontend.
+3. Colocar ambos os serviços em comunicação automática na tua máquina.
+
+### Passo 4.3: Aceder à Aplicação
+Após o Docker Compose concluir a inicialização:
+- **Frontend (Nginx):** Acede a `http://localhost:3000` no teu browser.
+- **Backend (FastAPI):** A API estará exposta em `http://localhost:8000` (e a documentação interativa em `http://localhost:8000/docs`).
+
+Para parar os serviços, prime `Ctrl+C` no terminal ou executa:
+```bash
+docker-compose down
+```
+
+---
+
+## 5. Resolução de Problemas (Troubleshooting) 🛠️
 
 ### 4.1 Erros de CORS (Cross-Origin Resource Sharing)
 *   **Sintoma:** O dashboard exibe avisos vermelhos ou de "Falha de Conexão à API" e o terminal do browser mostra erros do tipo `Access-Control-Allow-Origin`.
