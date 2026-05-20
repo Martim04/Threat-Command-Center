@@ -12,8 +12,10 @@ O projeto adota uma arquitetura limpa e modular de fácil navegação:
 
 ```text
 CIBER_APP/
+├── docker-compose.yml        # Orquestração simplificada com Docker (serviços backend + frontend)
 ├── backend/                  # Servidor API FastAPI (Python 3.9+)
 │   ├── .env.example          # Exemplo de configuração de variáveis de ambiente
+│   ├── Dockerfile            # Configuração de contentorização para o backend
 │   ├── main.py               # Ponto de entrada e rotas da API REST (24 endpoints)
 │   ├── database.py           # Abstração da base de dados SQLite
 │   ├── scheduler.py          # Automação de jobs periódicos em background
@@ -52,24 +54,30 @@ CIBER_APP/
 
 ## ⚡ Guia Rápido de Execução
 
-### 1. Requisitos Prévios
-- Python 3.9+ instalado no seu sistema.
-- Um terminal de comandos moderno (Bash, Zsh ou PowerShell).
+### Método A: Execução Simplificada com Docker (Recomendado) 🐳
+Garante que tens o Docker Desktop instalado. Na raiz do projeto, executa:
+```bash
+docker-compose up --build
+```
+- **Interface Web:** Acede a `http://localhost:3000` no teu browser.
+- **Documentação da API (Swagger):** Acede a `http://localhost:8000/docs`.
 
-### 2. Configurar e Iniciar o Backend
-Navegue até à pasta `backend/` e execute os seguintes passos:
+---
+
+### Método B: Execução Manual Local
+#### 1. Iniciar o Backend FastAPI:
+Navegue até à pasta `backend/` e execute:
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # No Windows use: venv\Scripts\activate
+source venv/bin/activate  # No Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env      # Configure o seu .env se necessário
+cp .env.example .env
 uvicorn main:app --reload --port 8000
 ```
-O backend ficará disponível em `http://localhost:8000`. A documentação interativaSwagger/OpenAPI pode ser acedida em `http://localhost:8000/docs`.
 
-### 3. Iniciar o Frontend
-Navegue até à pasta `frontend/` num novo terminal e sirva os ficheiros estáticos:
+#### 2. Servir o Frontend:
+Num novo terminal, na pasta `frontend/`, sirva os ficheiros estáticos:
 ```bash
 cd frontend
 python -m http.server 3000

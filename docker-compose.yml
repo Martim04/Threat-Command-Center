@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # --- API Rest Backend (FastAPI) ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ciber_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - DB_PATH=threat_center.db
+      - LOG_LEVEL=INFO
+    volumes:
+      # Volume mapeado para persistir a base de dados SQLite no host
+      - ./backend/threat_center.db:/app/threat_center.db
+    restart: unless-stopped
+
+  # --- Servidor Web Frontend (Nginx Alpine) ---
+  frontend:
+    image: nginx:alpine
+    container_name: ciber_frontend
+    ports:
+      - "3000:80"
+    volumes:
+      # Mapear a pasta do frontend para ser servida diretamente pelo Nginx
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
